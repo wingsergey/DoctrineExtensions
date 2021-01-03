@@ -248,7 +248,7 @@ class Closure implements Strategy
             $config = $this->listener->getConfiguration($em, $meta->name);
 
             $identifier = $meta->getSingleIdentifierFieldName();
-            $nodeId = $meta->getReflectionProperty($identifier)->getValue($node);
+            $nodeId = (string)$meta->getReflectionProperty($identifier)->getValue($node);
             $parent = $meta->getReflectionProperty($config['parent'])->getValue($node);
 
             $closureClass = $config['closure'];
@@ -438,7 +438,7 @@ class Closure implements Strategy
             $ids = $conn->executeQuery($subQuery, compact('nodeId'))->fetchAll(\PDO::FETCH_COLUMN);
             if ($ids) {
                 // using subquery directly, sqlite acts unfriendly
-                $query = "DELETE FROM {$table} WHERE id IN (".implode(', ', $ids).')';
+                $query = "DELETE FROM {$table} WHERE id IN ('".implode('\', \'', $ids)."')";
                 if (!empty($ids) && !$conn->executeQuery($query)) {
                     throw new RuntimeException('Failed to remove old closures');
                 }
