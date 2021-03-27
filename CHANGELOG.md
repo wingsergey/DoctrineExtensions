@@ -20,6 +20,16 @@ a release.
 
 ## [Unreleased]
 
+## [3.0.3] - 2021-01-23
+### Fixed
+- Add PHP 8 compatibility to `composer.json`, resolving minor function parameter deprecations [#2194](https://github.com/Atlantic18/DoctrineExtensions/pull/2194)
+
+## [3.0.2] - 2021-01-23
+- Ignore; tag & version mismatch
+
+## [3.0.1] - 2021-01-23
+- Ignore; wrong branch published
+
 ## [3.0.0] - 2020-09-23
 ### Notable & Breaking Changes
 - Minimum PHP version requirement of 7.2
