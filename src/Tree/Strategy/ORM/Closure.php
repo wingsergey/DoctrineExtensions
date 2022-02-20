@@ -453,7 +453,7 @@ class Closure implements Strategy
             $query .= ' WHERE c1.descendant = :parentId';
             $query .= ' AND c2.ancestor = :nodeId';
 
-            $closures = $conn->fetchAll($query, compact('nodeId', 'parentId'));
+            $closures = $conn->fetchAllAssociative($query, compact('nodeId', 'parentId'));
 
             foreach ($closures as $closure) {
                 if (!$conn->insert($table, $closure)) {
