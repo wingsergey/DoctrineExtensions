@@ -51,7 +51,7 @@
         "doctrine/orm": "^2.6.3",
         "friendsofphp/php-cs-fixer": "^2.16",
         "phpunit/phpunit": "^8.5",
-        "symfony/yaml": "^4.1"
+        "symfony/yaml": "^4.1|^5.3|^6.0"
     },
     "conflict": {
         "doctrine/mongodb": "<1.3",
