@@ -1,25 +1,34 @@
 <?php
 
-namespace Gedmo\IpTraceable;
+declare(strict_types=1);
+
+/*
+ * This file is part of the Doctrine Behavioral Extensions package.
+ * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Gedmo\Tests\IpTraceable;
 
 use Doctrine\Common\EventManager;
-use IpTraceable\Fixture\TitledArticle;
-use Tool\BaseTestCaseORM;
+use Gedmo\IpTraceable\IpTraceableListener;
+use Gedmo\Tests\IpTraceable\Fixture\TitledArticle;
+use Gedmo\Tests\Tool\BaseTestCaseORM;
 
 /**
  * These are tests for IpTraceable behavior
  *
  * @author Pierre-Charles Bertineau <pc.bertineau@alterphp.com>
- *
- * @see http://www.gediminasm.org
- *
- * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-class ChangeTest extends BaseTestCaseORM
+final class ChangeTest extends BaseTestCaseORM
 {
-    const TEST_IP = '34.234.1.10';
-    const FIXTURE = 'IpTraceable\\Fixture\\TitledArticle';
+    private const TEST_IP = '34.234.1.10';
+    private const FIXTURE = TitledArticle::class;
 
+    /**
+     * @var IpTraceableListener
+     */
     protected $listener;
 
     protected function setUp(): void
@@ -32,10 +41,10 @@ class ChangeTest extends BaseTestCaseORM
         $evm = new EventManager();
         $evm->addEventSubscriber($this->listener);
 
-        $this->getMockSqliteEntityManager($evm);
+        $this->getDefaultMockSqliteEntityManager($evm);
     }
 
-    public function testChange()
+    public function testChange(): void
     {
         $test = new TitledArticle();
         $test->setTitle('Test');
@@ -50,8 +59,8 @@ class ChangeTest extends BaseTestCaseORM
         $this->em->persist($test);
         $this->em->flush();
         $this->em->clear();
-        //Changed
-        $this->assertEquals(self::TEST_IP, $test->getChtitle());
+        // Changed
+        static::assertSame(self::TEST_IP, $test->getChtitle());
 
         $this->listener->setIpValue('127.0.0.1');
 
@@ -60,11 +69,11 @@ class ChangeTest extends BaseTestCaseORM
         $this->em->persist($test);
         $this->em->flush();
         $this->em->clear();
-        //Not Changed
-        $this->assertEquals(self::TEST_IP, $test->getChtitle());
+        // Not Changed
+        static::assertSame(self::TEST_IP, $test->getChtitle());
     }
 
-    protected function getUsedEntityFixtures()
+    protected function getUsedEntityFixtures(): array
     {
         return [
             self::FIXTURE,

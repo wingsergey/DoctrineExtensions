@@ -1,27 +1,36 @@
 <?php
 
-namespace Gedmo\Timestampable;
+declare(strict_types=1);
+
+/*
+ * This file is part of the Doctrine Behavioral Extensions package.
+ * (c) Gediminas Morkevicius <gediminas.morkevicius@gmail.com> http://www.gediminasm.org
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+namespace Gedmo\Tests\Timestampable;
 
 use Doctrine\Common\EventArgs;
 use Doctrine\Common\EventManager;
+use Gedmo\AbstractTrackingListener;
 use Gedmo\Mapping\Event\Adapter\ORM as BaseAdapterORM;
+use Gedmo\Tests\Timestampable\Fixture\TitledArticle;
+use Gedmo\Tests\Tool\BaseTestCaseORM;
 use Gedmo\Timestampable\Mapping\Event\TimestampableAdapter;
-use Timestampable\Fixture\TitledArticle;
-use Tool\BaseTestCaseORM;
 
 /**
  * These are tests for Timestampable behavior
  *
  * @author Ivan Borzenkov <ivan.borzenkov@gmail.com>
- *
- * @see http://www.gediminasm.org
- *
- * @license MIT License (http://www.opensource.org/licenses/mit-license.php)
  */
-class ChangeTest extends BaseTestCaseORM
+final class ChangeTest extends BaseTestCaseORM
 {
-    const FIXTURE = 'Timestampable\\Fixture\\TitledArticle';
+    private const FIXTURE = TitledArticle::class;
 
+    /**
+     * @var TimestampableListenerStub
+     */
     protected $listener;
 
     protected function setUp(): void
@@ -34,17 +43,17 @@ class ChangeTest extends BaseTestCaseORM
         $evm = new EventManager();
         $evm->addEventSubscriber($this->listener);
 
-        $this->getMockSqliteEntityManager($evm);
+        $this->getDefaultMockSqliteEntityManager($evm);
     }
 
-    public function testChange()
+    public function testChange(): void
     {
         $test = new TitledArticle();
         $test->setTitle('Test');
         $test->setText('Test');
         $test->setState('Open');
 
-        $currentDate = new \DateTime('now');
+        $currentDate = new \DateTime();
         $this->listener->eventAdapter->setDateValue($currentDate);
 
         $this->em->persist($test);
@@ -57,12 +66,12 @@ class ChangeTest extends BaseTestCaseORM
         $this->em->persist($test);
         $this->em->flush();
         $this->em->clear();
-        //Changed
-        $this->assertEquals(
+        // Changed
+        static::assertSame(
             $currentDate->format('Y-m-d H:i:s'),
             $test->getChtitle()->format('Y-m-d H:i:s')
         );
-        $this->assertEquals(
+        static::assertSame(
             $currentDate->format('Y-m-d H:i:s'),
             $test->getClosed()->format('Y-m-d H:i:s')
         );
@@ -76,12 +85,12 @@ class ChangeTest extends BaseTestCaseORM
         $this->em->persist($test);
         $this->em->flush();
         $this->em->clear();
-        //Not Changed
-        $this->assertEquals(
+        // Not Changed
+        static::assertSame(
             $currentDate->format('Y-m-d H:i:s'),
             $test->getChtitle()->format('Y-m-d H:i:s')
         );
-        $this->assertEquals(
+        static::assertSame(
             $currentDate->format('Y-m-d H:i:s'),
             $test->getClosed()->format('Y-m-d H:i:s')
         );
@@ -91,14 +100,14 @@ class ChangeTest extends BaseTestCaseORM
         $this->em->persist($test);
         $this->em->flush();
         $this->em->clear();
-        //Changed
-        $this->assertEquals(
+        // Changed
+        static::assertSame(
             $anotherDate->format('Y-m-d H:i:s'),
             $test->getClosed()->format('Y-m-d H:i:s')
         );
     }
 
-    protected function getUsedEntityFixtures()
+    protected function getUsedEntityFixtures(): array
     {
         return [
             self::FIXTURE,
@@ -106,23 +115,26 @@ class ChangeTest extends BaseTestCaseORM
     }
 }
 
-class EventAdapterORMStub extends BaseAdapterORM implements TimestampableAdapter
+final class EventAdapterORMStub extends BaseAdapterORM implements TimestampableAdapter
 {
-    protected $dateTime;
+    private ?\DateTime $dateTime = null;
 
-    public function setDateValue(\DateTime $dateTime)
+    public function setDateValue(\DateTime $dateTime): void
     {
         $this->dateTime = $dateTime;
     }
 
-    public function getDateValue($meta, $field)
+    public function getDateValue($meta, $field): ?\DateTime
     {
         return $this->dateTime;
     }
 }
 
-class TimestampableListenerStub extends TimestampableListener
+final class TimestampableListenerStub extends AbstractTrackingListener
 {
+    /**
+     * @var EventAdapterORMStub
+     */
     public $eventAdapter;
 
     protected function getEventAdapter(EventArgs $args)
@@ -130,5 +142,18 @@ class TimestampableListenerStub extends TimestampableListener
         $this->eventAdapter->setEventArgs($args);
 
         return $this->eventAdapter;
+    }
+
+    /**
+     * @param EventAdapterORMStub $eventAdapter
+     */
+    protected function getFieldValue($meta, $field, $eventAdapter)
+    {
+        return $eventAdapter->getDateValue($meta, $field);
+    }
+
+    protected function getNamespace()
+    {
+        return 'Gedmo\Timestampable';
     }
 }
