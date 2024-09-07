@@ -1,5 +1,5 @@
 {
-    "name": "gedmo/doctrine-extensions",
+    "name": "wingsergey/doctrine-extensions",
     "description": "Doctrine behavioral extensions",
     "license": "MIT",
     "type": "library",
