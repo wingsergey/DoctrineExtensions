@@ -290,7 +290,7 @@ class Closure implements Strategy
             $config = $this->listener->getConfiguration($em, $meta->getName());
 
             $identifier = $meta->getSingleIdentifierFieldName();
-            $nodeId = $meta->getReflectionProperty($identifier)->getValue($node);
+            $nodeId = (string)$meta->getReflectionProperty($identifier)->getValue($node);
             $parent = $meta->getReflectionProperty($config['parent'])->getValue($node);
 
             $closureClass = $config['closure'];
