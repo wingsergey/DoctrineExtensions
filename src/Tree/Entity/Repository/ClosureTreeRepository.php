@@ -345,12 +345,12 @@ class ClosureTreeRepository extends AbstractTreeRepository
                 if ($l == $firstLevel) {
                     $tmp = &$nestedTree;
                 } else {
-                    $tmp = &$refs[$n['parent_id']][$childrenIndex];
+                    $tmp = &$refs[(string)$n['parent_id']][$childrenIndex];
                 }
 
                 $key = count($tmp);
                 $tmp[$key] = $node;
-                $refs[$node[$idField]] = &$tmp[$key];
+                $refs[(string)($node[$idField])] = &$tmp[$key];
             }
 
             unset($refs);
