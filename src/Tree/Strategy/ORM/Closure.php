@@ -461,7 +461,7 @@ class Closure implements Strategy
         }
 
         if (isset($config['level'])) {
-            $this->pendingNodesLevelProcess[$nodeId] = $node;
+            $this->pendingNodesLevelProcess[(string)$nodeId] = $node;
         }
     }
 
